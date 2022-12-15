@@ -123,6 +123,11 @@ struct ProfileDetailView: View {
                         .font(.caption)
                         .fontWeight(.medium)
                         
+                    } else {
+                        Text("Calculating followers and following...")
+                            .foregroundColor(.secondary)
+                            .font(.caption)
+                            .fontWeight(.medium)
                     }
 
                 }

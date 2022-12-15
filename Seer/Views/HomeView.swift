@@ -130,7 +130,7 @@ struct HomeView: View {
                     
                 }
                 .simpleToast(isPresented: .constant(newTextNotes.count > 0),
-                             options: SimpleToastOptions(alignment: .top, showBackdrop: false, animation: .spring(), modifierType: .skew), onDismiss: nil) {
+                             options: SimpleToastOptions(alignment: .top, animation: .spring(), modifierType: .skew), onDismiss: nil) {
                     NewPostsToastView(avatarUrls: newTextNotes.prefix(3).map({ $0.userProfile?.avatarUrl ?? URL(string: "")! }))
                         .onTapGesture {
                             nostrData.updateLastSeenDate()
@@ -159,9 +159,11 @@ struct HomeView: View {
                 .onAppear {
                     viewIsVisible = true
                 }
-                
+                .refreshable {
+                    NostrData.shared.updateLastSeenDate()
+                }
             }
-            
+
         }
     }
 }

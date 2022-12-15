@@ -39,7 +39,7 @@ class NostrData: ObservableObject {
     
     func bootstrapRelays() {
         self.nostrRelays.append(NostrRelay(urlString: "wss://relay.damus.io", realm: realm))
-        //self.nostrRelays.append(NostrRelay(urlString: "wss://nostr-pub.wellorder.net", realm: realm))
+        self.nostrRelays.append(NostrRelay(urlString: "wss://nostr-pub.wellorder.net", realm: realm))
         for relay in nostrRelays {
             relay.connect()
         }
