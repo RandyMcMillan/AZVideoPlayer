@@ -124,10 +124,13 @@ struct ProfileDetailView: View {
                         .fontWeight(.medium)
                         
                     } else {
-                        Text("Calculating followers and following...")
-                            .foregroundColor(.secondary)
-                            .font(.caption)
-                            .fontWeight(.medium)
+                        HStack {
+                            Text("Calculating followers and following...")
+                                .foregroundColor(.secondary)
+                                .font(.caption)
+                                .fontWeight(.medium)
+                            Spacer()
+                        }
                     }
 
                 }
