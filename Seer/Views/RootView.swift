@@ -19,7 +19,7 @@ struct RootView: View {
                                                     ascending: false)) var textNoteResults
     
     var newTextNotes: [TextNoteVM] {
-        return Array(textNoteResults.filter("createdAt > %@", nostrData.lastSeenDate))
+        return Array(textNoteResults.filter("createdAt > %@ AND (rootParentEventId = nil AND parentEventId = nil)", nostrData.lastSeenDate))
     }
     
     var selectionHandler: Binding<Int> { Binding(

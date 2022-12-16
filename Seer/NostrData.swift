@@ -24,7 +24,7 @@ class NostrData: ObservableObject {
             UserDefaults.standard.setValue(Timestamp(date: Date.now).timestamp, forKey: NostrData.lastSeenDefaultsKey)
             self.lastSeenDate = Date(timeIntervalSince1970: Double(UserDefaults.standard.integer(forKey: NostrData.lastSeenDefaultsKey)))
         }
-        let config = Realm.Configuration(schemaVersion: 7)
+        let config = Realm.Configuration(schemaVersion: 8)
         Realm.Configuration.defaultConfiguration = config
         self.realm = try! Realm()
         self.realm.autorefresh = true
@@ -39,7 +39,7 @@ class NostrData: ObservableObject {
     
     func bootstrapRelays() {
         self.nostrRelays.append(NostrRelay(urlString: "wss://relay.damus.io", realm: realm))
-        self.nostrRelays.append(NostrRelay(urlString: "wss://nostr-pub.wellorder.net", realm: realm))
+        //self.nostrRelays.append(NostrRelay(urlString: "wss://nostr-pub.wellorder.net", realm: realm))
         for relay in nostrRelays {
             relay.connect()
         }

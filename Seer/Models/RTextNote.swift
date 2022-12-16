@@ -16,17 +16,26 @@ class RTextNote: Object, ObjectKeyIdentifiable {
     @Persisted var createdAt: Date
     
     @Persisted var userProfile: RUserProfile?
-    @Persisted var rootReply: RTextNote?
-    @Persisted var reply: RTextNote?
+    @Persisted var rootParentEventId: String?
+    @Persisted var parentEventId: String?
+    
+    var isTopLevelNote: Bool {
+        return rootParentEventId == nil && parentEventId == nil
+    }
 }
 
 class TextNoteVM: Projection<RTextNote>, ObjectKeyIdentifiable {
+    @Projected(\RTextNote.publicKey) var eventId
     @Projected(\RTextNote.publicKey) var publicKey
     @Projected(\RTextNote.content) var content
     @Projected(\RTextNote.createdAt) var createdAt
     @Projected(\RTextNote.userProfile) var userProfile
-    @Projected(\RTextNote.rootReply) var rootReply
-    @Projected(\RTextNote.reply) var reply
+    @Projected(\RTextNote.rootParentEventId) var rootParentEventId
+    @Projected(\RTextNote.parentEventId) var parentEventId
+    
+    var isTopLevelNote: Bool {
+        return rootParentEventId == nil && parentEventId == nil
+    }
     
     var contentFormatted: AttributedString? {
         if !content.isEmpty {

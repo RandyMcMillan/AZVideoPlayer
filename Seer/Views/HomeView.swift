@@ -27,11 +27,11 @@ struct HomeView: View {
                                                     ascending: false)) var textNoteResults
     
     var textNotes: [TextNoteVM] {
-        return Array(textNoteResults.filter("createdAt < %@", nostrData.lastSeenDate).prefix(250))
+        return Array(textNoteResults.filter("createdAt < %@ AND (rootParentEventId = nil AND parentEventId = nil)", nostrData.lastSeenDate).prefix(250))
     }
     
     var newTextNotes: [TextNoteVM] {
-        return Array(textNoteResults.filter("createdAt > %@", nostrData.lastSeenDate))
+        return Array(textNoteResults.filter("createdAt > %@ AND (rootParentEventId = nil AND parentEventId = nil)", nostrData.lastSeenDate))
     }
 
     @State private var textNotesFilter: TextNotesFilter = .global

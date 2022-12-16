@@ -72,12 +72,13 @@ class NostrRelay: NSObject {
 
     func subscribeProfiles() {
         self.authors = Set(Array(self.realm.objects(RUserProfile.self).map({ $0.publicKey })))
+        print(self.authors.count)
         if needsProfileSub() {
             if profileSub != nil {
                 unsubscribeProfiles()
             }
             self.profileSub = Subscription(filters: [
-                .init(authors: Array(authors), eventKinds: [.setMetadata])
+                .init(eventKinds: [.setMetadata])
             ])
             if let profileSub {
                 if let cm = try? ClientMessage.subscribe(profileSub).string() {
@@ -111,7 +112,7 @@ class NostrRelay: NSObject {
         
         let since = lastSeenTextNoteTimestamp ?? Timestamp(date: Date().addingTimeInterval(-86400))
         self.textNoteSub = Subscription(filters: [
-            .init(eventKinds: [.textNote], since: since, limit: 100)
+            .init(eventKinds: [.textNote], since: since)
         ])
         
         if let textNoteSub, connected {
@@ -318,32 +319,99 @@ class NostrRelay: NSObject {
                         textNote.userProfile = RUserProfile.createEmpty(withPublicKey: event.publicKey)
                     }
                     
+                    // Handle replies
+                    // Also need to handle replies to notes I may not have.
+                    // I think right now we will just throw out replies to root notes that we dont have
+                    // Since we arent interested if we dont have the root note anyway
                     
-
-//                    if let reply = event.tags.first(where: { $0.id == "e" }), reply.otherInformation.count == 3 {
-//                        let first = reply.otherInformation.first!
-//                        let type = reply.otherInformation.last!
-//                        @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: first)
-//                        if type == "reply" {
-//                            r?.reply =
-//                        } else if type == "root" {
-//
-//                        }
-//                        textNote.reply = r
-//                    }
-
-                    if self.bootstrapedTextNotes {
-                        realm.writeAsync {
-                            self.realm.add(textNote, update: .modified)
-                        } onComplete: { err in
-                            if let err {
-                                print(err)
-                            } else {
-                                self.subscribeProfiles()
+                    let replyTags = event.tags.filter { $0.id == "e" }
+                    var shouldSave = true
+                    
+                    if replyTags.count > 0 {
+                        if replyTags.first?.otherInformation.count == 3 {
+                            
+                            // Marked tags
+                            for t in replyTags {
+                                if let eid = t.otherInformation.first, let rt = t.otherInformation.last {
+                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
+                                    if let r {
+                                        if rt == "reply" {
+                                            textNote.parentEventId = r.eventId
+                                        } else if rt == "root" {
+                                            textNote.rootParentEventId = r.eventId
+                                        }
+                                        print("YasdfasdfasdfasdfasdfasdafsdfE")
+                                    } else {
+                                        shouldSave = false
+                                    }
+                                }
                             }
+                            
+                        } else {
+                            
+                            if replyTags.count == 1 {
+                                if let eid = replyTags.first?.otherInformation.first {
+                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
+                                    if let r {
+                                        textNote.rootParentEventId = r.eventId
+                                    } else {
+                                        shouldSave = false
+                                    }
+                                }
+                            } else if replyTags.count == 2 {
+                                if let eid = replyTags.first?.otherInformation.first {
+                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
+                                    if let r {
+                                        textNote.rootParentEventId = r.eventId
+                                    } else {
+                                        shouldSave = false
+                                    }
+                                }
+                                if let eid = replyTags.last?.otherInformation.first {
+                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
+                                    if let r {
+                                        textNote.parentEventId = r.eventId
+                                    } else {
+                                        shouldSave = false
+                                    }
+                                }
+                            } else {
+                                // Not sure about this one. Apparrently in between the first and last could be mention-id? Not sure what that is...
+                                if let eid = replyTags.first?.otherInformation.first {
+                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
+                                    if let r {
+                                        textNote.rootParentEventId = r.eventId
+                                    } else {
+                                        shouldSave = false
+                                    }
+                                }
+                                if let eid = replyTags.last?.otherInformation.first {
+                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
+                                    if let r {
+                                        textNote.parentEventId = r.eventId
+                                    } else {
+                                        shouldSave = false
+                                    }
+                                }
+                            }
+
                         }
-                    } else {
-                        self.tempTextNotes.append(textNote)
+                    }
+
+                    if shouldSave {
+                        if self.bootstrapedTextNotes {
+                            realm.writeAsync {
+                                self.realm.add(textNote, update: .modified)
+                            } onComplete: { err in
+                                if let err {
+                                    print(err)
+                                } else {
+                                    self.subscribeProfiles()
+                                }
+                            }
+                        } else {
+                            self.tempTextNotes.append(textNote)
+                        }
                     }
                     self.lastSeenTextNoteTimestamp = event.createdAt
                 }
