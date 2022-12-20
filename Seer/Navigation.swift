@@ -24,4 +24,8 @@ class Navigation: ObservableObject {
         let userProfile: RUserProfile
     }
     
+    struct NavDirectMessage: Hashable {
+        let userProfile: RUserProfile
+    }
+    
 }

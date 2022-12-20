@@ -31,13 +31,16 @@ class NostrRelay: NSObject {
     var authors: Set<String> = []
     
     var tempProfiles: [RUserProfile] = []
-    var tempTextNotes: [RTextNote] = []
+    var tempDirectMessages: [REncryptedDirectMessage] = []
     
-    var lastSeenTextNoteTimestamp: Timestamp?
+    var lastSeenDirectMessageToTimestamp: Timestamp?
+    var lastSeenDirectMessageFromTimestamp: Timestamp?
     var bootstrapedProfiles = false
-    var bootstrapedTextNotes = false
+    var bootstrapedDirectMessagesTo = false
+    var bootstrapedDirectMessagesFrom = false
     
-    var textNoteSub: Subscription?
+    var directMessageToSub: Subscription?
+    var directMessageFromSub: Subscription?
     var profileSub: Subscription?
     
     var contactListSubs: [ContactListSub] = []
@@ -78,7 +81,7 @@ class NostrRelay: NSObject {
                 unsubscribeProfiles()
             }
             self.profileSub = Subscription(filters: [
-                .init(eventKinds: [.setMetadata])
+                .init(authors: Array(self.authors), eventKinds: [.setMetadata])
             ])
             if let profileSub {
                 if let cm = try? ClientMessage.subscribe(profileSub).string() {
@@ -104,31 +107,48 @@ class NostrRelay: NSObject {
         }
         self.profileSub = nil
     }
-    
-    func subscribeTextNotes() {
-        if textNoteSub != nil {
-            unsubscribeTextNotes()
-        }
+
+    func subscribeDirectMessages() {
         
-        let since = lastSeenTextNoteTimestamp ?? Timestamp(date: Date().addingTimeInterval(-86400))
-        self.textNoteSub = Subscription(filters: [
-            .init(eventKinds: [.textNote], since: since)
-        ])
-        
-        if let textNoteSub, connected {
-            if let cm = try? ClientMessage.subscribe(textNoteSub).string() {
-                self.webSocketTask?.send(.string(cm), completionHandler: { error in
-                    if let error {
-                        print(error)
-                    }
-                })
+        if let selectedUserProfile = NostrData.shared.selectedUserProfile() {
+            if directMessageToSub != nil || directMessageFromSub != nil {
+                unsubscribeDirectMessages()
+            }
+            
+            self.directMessageToSub = Subscription(filters: [
+                .init(eventKinds: [.custom(4)], pubKeyTags: [selectedUserProfile.publicKey], since: lastSeenDirectMessageToTimestamp)
+            ])
+            
+            if let directMessageToSub, connected {
+                if let cm = try? ClientMessage.subscribe(directMessageToSub).string() {
+                    self.webSocketTask?.send(.string(cm), completionHandler: { error in
+                        if let error {
+                            print(error)
+                        }
+                    })
+                }
+            }
+            
+            self.directMessageFromSub = Subscription(filters: [
+                .init(authors: [selectedUserProfile.publicKey], eventKinds: [.custom(4)], since: lastSeenDirectMessageFromTimestamp)
+            ])
+            
+            if let directMessageFromSub, connected {
+                if let cm = try? ClientMessage.subscribe(directMessageFromSub).string() {
+                    self.webSocketTask?.send(.string(cm), completionHandler: { error in
+                        if let error {
+                            print(error)
+                        }
+                    })
+                }
             }
         }
+        
     }
     
-    func unsubscribeTextNotes() {
-        if let textNoteSub = textNoteSub, connected {
-            if let cm = try? ClientMessage.unsubscribe(textNoteSub.id).string() {
+    func unsubscribeDirectMessages() {
+        if let directMessageSub = directMessageToSub, connected {
+            if let cm = try? ClientMessage.unsubscribe(directMessageSub.id).string() {
                 self.webSocketTask?.send(.string(cm), completionHandler: { error in
                     if let error {
                         print(error)
@@ -136,7 +156,18 @@ class NostrRelay: NSObject {
                 })
             }
         }
-        self.textNoteSub = nil
+        self.directMessageToSub = nil
+        
+        if let directMessageFromSub = directMessageFromSub, connected {
+            if let cm = try? ClientMessage.unsubscribe(directMessageFromSub.id).string() {
+                self.webSocketTask?.send(.string(cm), completionHandler: { error in
+                    if let error {
+                        print(error)
+                    }
+                })
+            }
+        }
+        self.directMessageFromSub = nil
     }
     
     struct ContactListSub {
@@ -218,14 +249,14 @@ class NostrRelay: NSObject {
     func subscribe() {
         DispatchQueue.main.async {
             self.subscribeProfiles()
-            self.subscribeTextNotes()
+            self.subscribeDirectMessages()
         }
     }
     
     func unsubscribe() {
         DispatchQueue.main.async {
             self.unsubscribeProfiles()
-            self.unsubscribeTextNotes()
+            self.unsubscribeDirectMessages()
             self.unsubscribeContactListForAll()
         }
     }
@@ -307,116 +338,8 @@ class NostrRelay: NSObject {
                     self.tempProfiles.append(userProfile)
                 }
                 
-            case .textNote:
-
-                if !event.content.isEmpty {
-                    
-                    let textNote = RTextNote.create(with: event)
-                    @ThreadSafe var profile = realm.object(ofType: RUserProfile.self, forPrimaryKey: event.publicKey)
-                    if profile != nil {
-                        textNote.userProfile = profile
-                    } else {
-                        textNote.userProfile = RUserProfile.createEmpty(withPublicKey: event.publicKey)
-                    }
-                    
-                    // Handle replies
-                    // Also need to handle replies to notes I may not have.
-                    // I think right now we will just throw out replies to root notes that we dont have
-                    // Since we arent interested if we dont have the root note anyway
-                    
-                    let replyTags = event.tags.filter { $0.id == "e" }
-                    var shouldSave = true
-                    
-                    if replyTags.count > 0 {
-                        if replyTags.first?.otherInformation.count == 3 {
-                            
-                            // Marked tags
-                            for t in replyTags {
-                                if let eid = t.otherInformation.first, let rt = t.otherInformation.last {
-                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
-                                    if let r {
-                                        if rt == "reply" {
-                                            textNote.parentEventId = r.eventId
-                                        } else if rt == "root" {
-                                            textNote.rootParentEventId = r.eventId
-                                        }
-                                        print("YasdfasdfasdfasdfasdfasdafsdfE")
-                                    } else {
-                                        shouldSave = false
-                                    }
-                                }
-                            }
-                            
-                        } else {
-                            
-                            if replyTags.count == 1 {
-                                if let eid = replyTags.first?.otherInformation.first {
-                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
-                                    if let r {
-                                        textNote.rootParentEventId = r.eventId
-                                    } else {
-                                        shouldSave = false
-                                    }
-                                }
-                            } else if replyTags.count == 2 {
-                                if let eid = replyTags.first?.otherInformation.first {
-                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
-                                    if let r {
-                                        textNote.rootParentEventId = r.eventId
-                                    } else {
-                                        shouldSave = false
-                                    }
-                                }
-                                if let eid = replyTags.last?.otherInformation.first {
-                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
-                                    if let r {
-                                        textNote.parentEventId = r.eventId
-                                    } else {
-                                        shouldSave = false
-                                    }
-                                }
-                            } else {
-                                // Not sure about this one. Apparrently in between the first and last could be mention-id? Not sure what that is...
-                                if let eid = replyTags.first?.otherInformation.first {
-                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
-                                    if let r {
-                                        textNote.rootParentEventId = r.eventId
-                                    } else {
-                                        shouldSave = false
-                                    }
-                                }
-                                if let eid = replyTags.last?.otherInformation.first {
-                                    @ThreadSafe var r = realm.object(ofType: RTextNote.self, forPrimaryKey: eid)
-                                    if let r {
-                                        textNote.parentEventId = r.eventId
-                                    } else {
-                                        shouldSave = false
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-
-                    if shouldSave {
-                        if self.bootstrapedTextNotes {
-                            realm.writeAsync {
-                                self.realm.add(textNote, update: .modified)
-                            } onComplete: { err in
-                                if let err {
-                                    print(err)
-                                } else {
-                                    self.subscribeProfiles()
-                                }
-                            }
-                        } else {
-                            self.tempTextNotes.append(textNote)
-                        }
-                    }
-                    self.lastSeenTextNoteTimestamp = event.createdAt
-                }
-            case .recommentServer:
-                ()
+            case .textNote: ()
+            case .recommentServer: ()
             case .custom(let kind):
                 if kind == 3 { // Contact list
                     if let contactSub = self.contactListSubs.first(where: { $0.subscription.id == id }) {
@@ -426,6 +349,45 @@ class NostrRelay: NSObject {
                             } else if contactSub.subType == "followedBy" {
                                 self.contactListSubs[indexOf].publicKeys.update(with: event.publicKey)
                             }
+                        }
+                    }
+                } else if kind == 4 { // Direct Messages
+                    if !event.content.isEmpty, event.content.contains("?iv="), let toPublickey = event.tags.first(where: { $0.id == "p"})?.otherInformation.first {
+
+                        let directMessage = REncryptedDirectMessage.create(with: event)
+                        
+                        @ThreadSafe var profile = realm.object(ofType: RUserProfile.self, forPrimaryKey: event.publicKey)
+                        if profile != nil {
+                            directMessage.userProfile = profile
+                        } else {
+                            directMessage.userProfile = RUserProfile.createEmpty(withPublicKey: event.publicKey)
+                        }
+                        
+                        @ThreadSafe var toProfile = realm.object(ofType: RUserProfile.self, forPrimaryKey: toPublickey)
+                        if toProfile != nil {
+                            directMessage.toUserProfile = toProfile
+                        } else {
+                            directMessage.toUserProfile = RUserProfile.createEmpty(withPublicKey: toPublickey)
+                        }
+                        
+                        if self.bootstrapedDirectMessagesTo && self.bootstrapedDirectMessagesFrom {
+                            realm.writeAsync {
+                                self.realm.add(directMessage, update: .modified)
+                            } onComplete: { err in
+                                if let err {
+                                    print(err)
+                                } else {
+                                    self.subscribeProfiles()
+                                }
+                            }
+                        } else {
+                            self.tempDirectMessages.append(directMessage)
+                        }
+                        
+                        if id == self.directMessageToSub?.id {
+                            self.lastSeenDirectMessageToTimestamp = event.createdAt
+                        } else if id == self.directMessageFromSub?.id {
+                            self.lastSeenDirectMessageFromTimestamp = event.createdAt
                         }
                     }
                 }
@@ -510,28 +472,55 @@ class NostrRelay: NSObject {
                             if let err {
                                 print(err)
                             }
+                            print(self.realm.objects(RUserProfile.self).count)
                         }
                     }
                     
-                    // MARK: - Handle textnotes EOSE
-                    if subscriptionId == textNoteSub?.id && !self.bootstrapedTextNotes {
+                    // MARK: - Handle DM EOSE
+                    if subscriptionId == directMessageToSub?.id && !self.bootstrapedDirectMessagesTo {
                         
-                        print("TextNotes EOSE - Sub ID: \(subscriptionId)")
+                        print("Direct Messages EOSE - Sub ID: \(subscriptionId)")
                         
-                        self.bootstrapedTextNotes = true
+                        self.bootstrapedDirectMessagesTo = true
                         
                         realm.writeAsync {
-                            self.realm.add(self.tempTextNotes, update: .modified)
-                            self.tempTextNotes.removeAll()
+                            self.realm.add(self.tempDirectMessages, update: .modified)
+                            self.tempDirectMessages.removeAll()
                         } onComplete: { err in
                             if let err {
                                 print(err)
                             } else {
-                                let profiles = self.realm.objects(RUserProfile.self)
-                                self.authors = Set(profiles.map({ $0.publicKey }))
-                                self.subscribeProfiles()
+                                if self.bootstrapedDirectMessagesFrom && self.bootstrapedDirectMessagesTo {
+                                    let profiles = self.realm.objects(RUserProfile.self)
+                                    self.authors = Set(profiles.map({ $0.publicKey }))
+                                    self.subscribeProfiles()
+                                }
                             }
                         }
+                        
+                    }
+                    
+                    if subscriptionId == directMessageFromSub?.id && !self.bootstrapedDirectMessagesFrom {
+                        
+                        print("Direct Messages EOSE - Sub ID: \(subscriptionId)")
+                        
+                        self.bootstrapedDirectMessagesFrom = true
+                        
+                        realm.writeAsync {
+                            self.realm.add(self.tempDirectMessages, update: .modified)
+                            self.tempDirectMessages.removeAll()
+                        } onComplete: { err in
+                            if let err {
+                                print(err)
+                            } else {
+                                if self.bootstrapedDirectMessagesFrom && self.bootstrapedDirectMessagesTo {
+                                    let profiles = self.realm.objects(RUserProfile.self)
+                                    self.authors = Set(profiles.map({ $0.publicKey }))
+                                    self.subscribeProfiles()
+                                }
+                            }
+                        }
+                        
                     }
                     
                 }

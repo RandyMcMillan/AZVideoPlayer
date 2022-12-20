@@ -30,7 +30,7 @@ struct ProfileDetailView: View {
             
             List {
                 
-                LazyVStack {
+                VStack {
                     HStack(alignment: .top) {
                         AnimatedImage(url: userProfile.avatarUrl)
                             .placeholder {
@@ -131,6 +131,7 @@ struct ProfileDetailView: View {
                                 .fontWeight(.medium)
                             Spacer()
                         }
+
                     }
 
                 }
