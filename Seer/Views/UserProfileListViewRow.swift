@@ -17,17 +17,10 @@ struct UserProfileListViewRow: View {
         HStack(alignment: .top, spacing: 12) {
             
             AnimatedImage(url: userProfile.avatarUrl)
-                .placeholder {
-                    Color.secondary.opacity(0.2)
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .imageScale(.large)
-                        )
-                }
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .background(
-                    Color.secondary.opacity(0.2)
+                    Image(systemName: "person.crop.circle.fill").foregroundColor(.secondary).font(.system(size: 48))
                 )
                 .frame(width: 40, height: 40)
                 .cornerRadius(8)
@@ -69,20 +62,13 @@ struct UserProfileNavigationTitle: View {
     var body: some View {
         HStack {
             AnimatedImage(url: userProfile.avatarUrl)
-                .placeholder {
-                    Color.secondary.opacity(0.2)
-                        .overlay(
-                            Image(systemName: "person.fill")
-                                .imageScale(.large)
-                        )
-                }
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .background(
-                    Color.secondary.opacity(0.2)
+                    Image(systemName: "person.crop.circle.fill").foregroundColor(.secondary).font(.system(size: 25))
                 )
                 .frame(width: 25, height: 25)
-                .cornerRadius(4)
+                .cornerRadius(12.5)
             
             HStack(spacing: 4) {
                 if let name = userProfile.name, name.isValidName()  {

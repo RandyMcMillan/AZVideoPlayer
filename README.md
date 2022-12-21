@@ -1,15 +1,15 @@
 # Seer
-Nostr SwiftUI Client
+Nostr SwiftUI Encrypte DM Client
 
-Building this on my own time as of now.
+Building this on my own time as of now. The idea is have the best encrypted DM experience for nostr on iOS and macOS.
 
-Right now its only a reader. Working on adding ability to create account, import account, DM, etc.
+Not accepting any pull requests until I get it to a point where Im satisfied. Feel free to follow along.
+
+Remeber: This is pre-alpha!
 
 Here some inital screenshots of the design.
 
-<img src="Screenshots/screenshot_light_01.png" alt="drawing" width="200"/><img src="Screenshots/screenshot_light_02.png" alt="drawing" width="200"/><img src="Screenshots/screenshot_light_03.png" alt="drawing" width="200"/>
-
-<img src="Screenshots/screenshot_dark_01.png" alt="drawing" width="200"/><img src="Screenshots/screenshot_dark_02.png" alt="drawing" width="200"/><img src="Screenshots/screenshot_dark_03.png" alt="drawing" width="200"/>
+<img src="Screenshots/Seer_dm.png" alt="drawing" width="600"/>
 
 # License
 MIT License

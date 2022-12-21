@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import NostrKit
+import CommonCrypto
+import secp256k1
 
 extension String {
     
@@ -38,3 +41,5 @@ extension URL {
         return videoFormats.contains(extensi)
     }
 }
+
+
