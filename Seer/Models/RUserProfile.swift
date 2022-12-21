@@ -30,7 +30,7 @@ class RUserProfile: Object, ObjectKeyIdentifiable {
     }
     
     var bech32PublicKey: String {
-        KeyPair.bech32PublicKey(fromHexPublicKey: publicKey) ?? publicKey
+        KeyPair.bech32PublicKey(fromHex: publicKey) ?? publicKey
     }
     
     func getLatestMessage() -> REncryptedDirectMessage? {
@@ -38,6 +38,15 @@ class RUserProfile: Object, ObjectKeyIdentifiable {
             .where({ $0.userProfile.publicKey == publicKey || $0.toUserProfile.publicKey == publicKey })
             .sorted(by: { $0.createdAt > $1.createdAt })
             .first
+    }
+    
+    func hasContacted() -> Bool {
+        if let realm = try? Realm() {
+            if let selectedOwnerUserProfile = realm.objects(ROwnedUserProfile.self).first(where: { $0.selected == true }) {
+                return realm.objects(REncryptedDirectMessage.self).first(where: { $0.publicKey == selectedOwnerUserProfile.publicKey && $0.toUserProfile?.publicKey == publicKey }) != nil
+            }
+        }
+        return false
     }
     
 }

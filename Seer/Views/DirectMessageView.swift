@@ -8,6 +8,7 @@
 import SwiftUI
 import RealmSwift
 import SDWebImageSwiftUI
+//import NostrKit
 
 struct DirectMessageView: View {
     
@@ -27,6 +28,7 @@ struct DirectMessageView: View {
     
     @State private var messageText = ""
     @State private var textEditorHeight : CGFloat = 110
+    @FocusState private var inputFocused: Bool
     
     private let maxHeight : CGFloat = 350
     
@@ -128,6 +130,9 @@ struct DirectMessageView: View {
                 }
             }
         }
+        .onAppear {
+            
+        }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             HStack(spacing: 16) {
                 ZStack {
@@ -141,6 +146,7 @@ struct DirectMessageView: View {
                         })
                     
                     TextEditor(text: $messageText)
+                        .focused($inputFocused)
                         .font(.system(.body))
                         .scrollContentBackground(.hidden)
                         .padding(12)
@@ -154,9 +160,17 @@ struct DirectMessageView: View {
                                 .stroke(style: .init(lineWidth: 0.5))
                                 .fill(Color(.systemGray4))
                         }
+                        .contentShape(Rectangle())
                 }
                 //.padding(20)
-                Button(action: {}) {
+                Button(action: {
+                    if !messageText.isEmpty {
+                        if nostrData.createEncyrpedDirectMessageEvent(withContent: messageText, forPublicKey: userProfile.publicKey) {
+                            messageText = ""
+                            inputFocused = false
+                        }
+                    }
+                }) {
                     Image(systemName: "arrow.up.circle.fill")
                         .resizable()
                         .frame(width: 35, height: 35)

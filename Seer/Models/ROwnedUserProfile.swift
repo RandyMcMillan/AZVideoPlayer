@@ -7,7 +7,7 @@
 
 import Foundation
 import RealmSwift
-import NostrKit
+//import NostrKit
 
 class ROwnedUserProfile: Object, ObjectKeyIdentifiable {
     @Persisted(primaryKey: true) var publicKey: String

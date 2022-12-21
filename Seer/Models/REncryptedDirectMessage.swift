@@ -44,7 +44,7 @@ class REncryptedDirectMessage: Object, ObjectKeyIdentifiable {
             if let otherPublicKey {
                 var decryptedMessage: String?
                 let ourPrivateKey = NostrData.shared.privateKey(forPublicKey: ownerUserProfile.publicKey)
-                decryptedMessage = KeyPair.decrypt_dm(ourPrivateKey, pubkey: otherPublicKey, content: content)
+                decryptedMessage = KeyPair.decryptDirectMessageContent(withPrivateKey: ourPrivateKey, pubkey: otherPublicKey, content: content)
                 
                 return decryptedMessage ?? content
             }

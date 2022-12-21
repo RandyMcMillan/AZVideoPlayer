@@ -25,12 +25,12 @@
 		4747B63D295114700040B471 /* ROwnedUserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4747B63C295114700040B471 /* ROwnedUserProfile.swift */; };
 		4747B63F2951F56C0040B471 /* DirectMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4747B63E2951F56C0040B471 /* DirectMessageView.swift */; };
 		4747B641295219C80040B471 /* KeyboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4747B640295219C80040B471 /* KeyboardManager.swift */; };
+		4747B647295395FF0040B471 /* NostrKit in Frameworks */ = {isa = PBXBuildFile; productRef = 4747B646295395FF0040B471 /* NostrKit */; };
 		474A71372912D0B800A2E6F9 /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 474A71362912D0B800A2E6F9 /* Realm */; };
 		474A71392912D0B800A2E6F9 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 474A71382912D0B800A2E6F9 /* RealmSwift */; };
 		474A713C2912D42F00A2E6F9 /* RUserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474A713B2912D42F00A2E6F9 /* RUserProfile.swift */; };
 		4781F38E2912E4AD00842EC9 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 4781F38D2912E4AD00842EC9 /* SDWebImageSwiftUI */; };
 		4781F3912912E58D00842EC9 /* SDWebImageSVGCoder in Frameworks */ = {isa = PBXBuildFile; productRef = 4781F3902912E58D00842EC9 /* SDWebImageSVGCoder */; };
-		47ED46FF29156BE900C087FC /* NostrKit in Frameworks */ = {isa = PBXBuildFile; productRef = 47ED46FE29156BE900C087FC /* NostrKit */; };
 		47ED470229159EC000C087FC /* ProfileDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47ED470129159EC000C087FC /* ProfileDetailView.swift */; };
 		47ED47042915AB4700C087FC /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47ED47032915AB4700C087FC /* ViewModifiers.swift */; };
 		47ED47062915B28400C087FC /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47ED47052915B28400C087FC /* RootView.swift */; };
@@ -41,7 +41,6 @@
 		47ED47112919A78000C087FC /* UserProfileListViewRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47ED47102919A78000C087FC /* UserProfileListViewRow.swift */; };
 		47ED47132919A92900C087FC /* FollowersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47ED47122919A92900C087FC /* FollowersView.swift */; };
 		47ED4715291A91BB00C087FC /* NostrRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47ED4714291A91BB00C087FC /* NostrRelay.swift */; };
-		47ED4717291ABF8800C087FC /* EmbededVideoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47ED4716291ABF8800C087FC /* EmbededVideoView.swift */; };
 		47ED471A291AC87900C087FC /* AZVideoPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 47ED4719291AC87900C087FC /* AZVideoPlayer */; };
 /* End PBXBuildFile section */
 
@@ -77,7 +76,6 @@
 		47ED47102919A78000C087FC /* UserProfileListViewRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileListViewRow.swift; sourceTree = "<group>"; };
 		47ED47122919A92900C087FC /* FollowersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowersView.swift; sourceTree = "<group>"; };
 		47ED4714291A91BB00C087FC /* NostrRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NostrRelay.swift; sourceTree = "<group>"; };
-		47ED4716291ABF8800C087FC /* EmbededVideoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbededVideoView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,12 +83,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				47ED46FF29156BE900C087FC /* NostrKit in Frameworks */,
 				4781F38E2912E4AD00842EC9 /* SDWebImageSwiftUI in Frameworks */,
 				474A71392912D0B800A2E6F9 /* RealmSwift in Frameworks */,
 				474A71372912D0B800A2E6F9 /* Realm in Frameworks */,
 				47ED471A291AC87900C087FC /* AZVideoPlayer in Frameworks */,
 				47ED47092915C83700C087FC /* SimpleToast in Frameworks */,
+				4747B647295395FF0040B471 /* NostrKit in Frameworks */,
 				4781F3912912E58D00842EC9 /* SDWebImageSVGCoder in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -184,7 +182,6 @@
 				47ED470E29199AD700C087FC /* FollowingView.swift */,
 				47ED47102919A78000C087FC /* UserProfileListViewRow.swift */,
 				47ED47122919A92900C087FC /* FollowersView.swift */,
-				47ED4716291ABF8800C087FC /* EmbededVideoView.swift */,
 				4747B630294CF7460040B471 /* DirectMessagesView.swift */,
 				4747B6342950D8AD0040B471 /* ImportKeyView.swift */,
 				4747B63E2951F56C0040B471 /* DirectMessageView.swift */,
@@ -213,9 +210,9 @@
 				474A71382912D0B800A2E6F9 /* RealmSwift */,
 				4781F38D2912E4AD00842EC9 /* SDWebImageSwiftUI */,
 				4781F3902912E58D00842EC9 /* SDWebImageSVGCoder */,
-				47ED46FE29156BE900C087FC /* NostrKit */,
 				47ED47082915C83700C087FC /* SimpleToast */,
 				47ED4719291AC87900C087FC /* AZVideoPlayer */,
+				4747B646295395FF0040B471 /* NostrKit */,
 			);
 			productName = Seer;
 			productReference = 473A1FC4290EBE1C00363E2D /* Seer.app */;
@@ -249,9 +246,9 @@
 				474A71352912D0B800A2E6F9 /* XCRemoteSwiftPackageReference "realm-swift" */,
 				4781F38C2912E4AD00842EC9 /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				4781F38F2912E58D00842EC9 /* XCRemoteSwiftPackageReference "SDWebImageSVGCoder" */,
-				47ED46FD29156BE900C087FC /* XCRemoteSwiftPackageReference "NostrKit" */,
 				47ED47072915C83700C087FC /* XCRemoteSwiftPackageReference "SimpleToast" */,
 				47ED4718291AC87900C087FC /* XCRemoteSwiftPackageReference "AZVideoPlayer" */,
+				4747B645295395FF0040B471 /* XCRemoteSwiftPackageReference "NostrKit" */,
 			);
 			productRefGroup = 473A1FC5290EBE1C00363E2D /* Products */;
 			projectDirPath = "";
@@ -296,7 +293,6 @@
 				4747B6352950D8AD0040B471 /* ImportKeyView.swift in Sources */,
 				47ED470F29199AD700C087FC /* FollowingView.swift in Sources */,
 				47ED47112919A78000C087FC /* UserProfileListViewRow.swift in Sources */,
-				47ED4717291ABF8800C087FC /* EmbededVideoView.swift in Sources */,
 				47ED47132919A92900C087FC /* FollowersView.swift in Sources */,
 				47ED470B2915E3D700C087FC /* Navigation.swift in Sources */,
 				4747B63F2951F56C0040B471 /* DirectMessageView.swift in Sources */,
@@ -535,6 +531,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4747B645295395FF0040B471 /* XCRemoteSwiftPackageReference "NostrKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Galaxoid-Labs/NostrKit.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		474A71352912D0B800A2E6F9 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-swift.git";
@@ -559,14 +563,6 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		47ED46FD29156BE900C087FC /* XCRemoteSwiftPackageReference "NostrKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/cnixbtc/NostrKit.git";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
 		47ED47072915C83700C087FC /* XCRemoteSwiftPackageReference "SimpleToast" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sanzaru/SimpleToast.git";
@@ -586,6 +582,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4747B646295395FF0040B471 /* NostrKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4747B645295395FF0040B471 /* XCRemoteSwiftPackageReference "NostrKit" */;
+			productName = NostrKit;
+		};
 		474A71362912D0B800A2E6F9 /* Realm */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 474A71352912D0B800A2E6F9 /* XCRemoteSwiftPackageReference "realm-swift" */;
@@ -605,11 +606,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4781F38F2912E58D00842EC9 /* XCRemoteSwiftPackageReference "SDWebImageSVGCoder" */;
 			productName = SDWebImageSVGCoder;
-		};
-		47ED46FE29156BE900C087FC /* NostrKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 47ED46FD29156BE900C087FC /* XCRemoteSwiftPackageReference "NostrKit" */;
-			productName = NostrKit;
 		};
 		47ED47082915C83700C087FC /* SimpleToast */ = {
 			isa = XCSwiftPackageProductDependency;

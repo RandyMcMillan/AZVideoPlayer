@@ -43,17 +43,13 @@ struct ImportKeyView: View {
     }
     
     func trySavePrivateKey() -> Bool {
-        do {
-            if let hex = KeyPair.decodeBech32(key: keytext) {
-                let keypair = try KeyPair(privateKey: hex)
-                NostrData.shared.save(privateKey: hex, forPublicKey: keypair.publicKey)
-                return true
-            }
-        } catch {
-            print(error)
-            return false
+        if keytext.hasPrefix("nsec"), let keypair = try? KeyPair(bech32PrivateKey: keytext) {
+            NostrData.shared.save(privateKey: keypair.privateKey, forPublicKey: keypair.publicKey)
+            return true
+        } else if let keypair = try? KeyPair(privateKey: keytext)  {
+            NostrData.shared.save(privateKey: keypair.privateKey, forPublicKey: keypair.publicKey)
+            return true
         }
-        
         return false
     }
 }

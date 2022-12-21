@@ -12,10 +12,10 @@
     {
       "identity" : "nostrkit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/cnixbtc/NostrKit.git",
+      "location" : "https://github.com/Galaxoid-Labs/NostrKit.git",
       "state" : {
         "branch" : "master",
-        "revision" : "9b343826a0d60c5d77f790166f42fe8bbd263172"
+        "revision" : "1c978e6f04d815ee7e5395fefecfe84fc9352350"
       }
     },
     {

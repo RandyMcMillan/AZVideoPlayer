@@ -62,6 +62,17 @@ class NostrRelay: NSObject {
         }
     }
     
+    func publish(event: Event) {
+        if let message = try? ClientMessage.event(event).string(), let sub = directMessageToSub, connected {
+            print(message)
+            self.webSocketTask?.send(.string(message), completionHandler: { error in
+                if let error {
+                    print(error)
+                }
+            })
+        }
+    }
+    
     func needsProfileSub() -> Bool {
         if !authors.isEmpty {
             if let currentAuthors = self.profileSub?.filters.first.map({ $0.authors }) ?? [] {
@@ -74,7 +85,8 @@ class NostrRelay: NSObject {
     }
 
     func subscribeProfiles() {
-        self.authors = Set(Array(self.realm.objects(RUserProfile.self).map({ $0.publicKey })))
+        let messages = realm.objects(REncryptedDirectMessage.self)
+        self.authors = Set(Array(messages.compactMap({ $0.toUserProfile?.publicKey })) +  Array(messages.compactMap({ $0.userProfile?.publicKey })))
         print(self.authors.count)
         if needsProfileSub() {
             if profileSub != nil {
@@ -340,20 +352,12 @@ class NostrRelay: NSObject {
                 
             case .textNote: ()
             case .recommentServer: ()
-            case .custom(let kind):
-                if kind == 3 { // Contact list
-                    if let contactSub = self.contactListSubs.first(where: { $0.subscription.id == id }) {
-                        if let indexOf = self.contactListSubs.firstIndex(where: { $0.subscription.id == id }) {
-                            if contactSub.subType == "following" {
-                                self.contactListSubs[indexOf].publicKeys = Set(event.tags.compactMap({ $0.otherInformation.first }))
-                            } else if contactSub.subType == "followedBy" {
-                                self.contactListSubs[indexOf].publicKeys.update(with: event.publicKey)
-                            }
-                        }
-                    }
-                } else if kind == 4 { // Direct Messages
-                    if !event.content.isEmpty, event.content.contains("?iv="), let toPublickey = event.tags.first(where: { $0.id == "p"})?.otherInformation.first {
-
+            case .encryptedDirectMessage:
+                if !event.content.isEmpty, event.content.contains("?iv="), let toPublickey = event.tags.first(where: { $0.id == "p"})?.otherInformation.first {
+                    
+                    @ThreadSafe var message = realm.object(ofType: REncryptedDirectMessage.self, forPrimaryKey: event.id)
+                    
+                    if message == nil {
                         let directMessage = REncryptedDirectMessage.create(with: event)
                         
                         @ThreadSafe var profile = realm.object(ofType: RUserProfile.self, forPrimaryKey: event.publicKey)
@@ -388,6 +392,20 @@ class NostrRelay: NSObject {
                             self.lastSeenDirectMessageToTimestamp = event.createdAt
                         } else if id == self.directMessageFromSub?.id {
                             self.lastSeenDirectMessageFromTimestamp = event.createdAt
+                        }
+                        
+                    }
+                    
+                }
+            case .custom(let kind):
+                if kind == 3 { // Contact list
+                    if let contactSub = self.contactListSubs.first(where: { $0.subscription.id == id }) {
+                        if let indexOf = self.contactListSubs.firstIndex(where: { $0.subscription.id == id }) {
+                            if contactSub.subType == "following" {
+                                self.contactListSubs[indexOf].publicKeys = Set(event.tags.compactMap({ $0.otherInformation.first }))
+                            } else if contactSub.subType == "followedBy" {
+                                self.contactListSubs[indexOf].publicKeys.update(with: event.publicKey)
+                            }
                         }
                     }
                 }

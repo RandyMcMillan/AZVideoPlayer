@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import NostrKit
+//import NostrKit
 import SDWebImageSwiftUI
 import SDWebImageSVGCoder
 

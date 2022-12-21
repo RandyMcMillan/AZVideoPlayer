@@ -7,7 +7,7 @@
 
 import SwiftUI
 import RealmSwift
-import NostrKit
+//import NostrKit
 
 struct RootView: View {
     
@@ -52,19 +52,14 @@ struct RootView: View {
                     .tag(3)
             }
             .navigationTitle(getNavigationTitle())
-            .toolbarBackground(.visible, for: .navigationBar)
         }
         .fullScreenCover(isPresented: $needsImport, onDismiss: {
-            needsImport = nostrData.selectedUserProfile() == nil
-            if needsImport != true {
-                nostrData.disconnect()
-                nostrData.reconnect()
-            }
+
         }) {
             ImportKeyView()
         }
         .onAppear {
-            needsImport = nostrData.selectedUserProfile() == nil
+            needsImport = nostrData.selectedOwnerUserProfile == nil
         }
         
     }
